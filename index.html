@@ -2,72 +2,148 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Portfolio Atomique - Didier Basque</title>
+  <title>portfolio dynamique</title>
   <style>
-    body { margin: 0; overflow: hidden; background: white; }
+    body { margin: 0; overflow: hidden; font-family: sans-serif; background: white; }
     svg { width: 100vw; height: 100vh; display: block; }
+    .tooltip {
+      position: absolute;
+      background: rgba(255,255,255,0.95);
+      border: 1px solid #ccc;
+      padding: 10px;
+      font-size: 14px;
+      pointer-events: none;
+      box-shadow: 0px 2px 10px rgba(0,0,0,0.2);
+      border-radius: 8px;
+    }
   </style>
 </head>
 <body>
+<div class="tooltip" style="opacity: 0;"></div>
 <svg></svg>
+
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
 const nodes = [
-  { id: "Formateur Manager", group: 1 },
-  { id: "Enseignant INFOCOM", group: 2 },
-  { id: "Gérant PNP", group: 1 },
-  { id: "Licence Pro Commerce", group: 3 },
-  { id: "Master Humanités Numériques", group: 3 },
-  { id: "Stage maraîchage", group: 1 },
-  { id: "Feng Shui", group: 4 },
+  {
+    id: "Formateur Manager",
+    group: 1,
+    skills: [
+      "Analyser les freins/apports",
+      "Accompagnement insertion",
+      "Encadrement pédagogique",
+      "Évaluation de compétences",
+      "Animation d’équipe"
+    ]
+  },
+  {
+    id: "Enseignant INFOCOM",
+    group: 2,
+    skills: [
+      "Pédagogie universitaire",
+      "Médiation culturelle",
+      "Gestion de groupe",
+      "Préparation de cours",
+      "Communication orale"
+    ]
+  },
+  {
+    id: "Gérant PNP",
+    group: 1,
+    skills: [
+      "Stratégie d’entreprise",
+      "Informatique",
+      "Gestion financière",
+      "Relation client",
+      "Esprit entrepreneurial"
+    ]
+  },
+  {
+    id: "Licence Pro Commerce",
+    group: 3,
+    skills: [
+      "E-commerce",
+      "Marketing digital",
+      "Stratégie de vente",
+      "Analyse de marché",
+      "Communication visuelle"
+    ]
+  },
+  {
+    id: "Master Humanités Numériques",
+    group: 3,
+    skills: [
+      "Design d'interaction",
+      "Culture numérique",
+      "Industries culturelles",
+      "Analyse critique",
+      "Recherche appliquée"
+    ]
+  },
+  {
+    id: "Stage Maraîchage",
+    group: 1,
+    skills: [
+      "Techniques horticoles",
+      "Agriculture durable",
+      "Travail manuel",
+      "Respect cahier des charges",
+      "Observation végétale"
+    ]
+  },
+  {
+    id: "Feng Shui",
+    group: 4,
+    skills: [
+      "Équilibre des espaces",
+      "Design énergétique",
+      "Lecture de plans",
+      "Symbolique",
+      "Harmonie environnementale"
+    ]
+  }
 ];
 
 const svg = d3.select("svg"),
       width = window.innerWidth,
       height = window.innerHeight;
 
+const tooltip = d3.select(".tooltip");
+
 const color = d3.scaleOrdinal(d3.schemeCategory10);
 
 const simulation = d3.forceSimulation(nodes)
-    .force("charge", d3.forceManyBody().strength(-120))
+    .force("charge", d3.forceManyBody().strength(-100))
     .force("center", d3.forceCenter(width / 2, height / 2))
-    .force("collision", d3.forceCollide().radius(50))
+    .force("collision", d3.forceCollide().radius(40))
     .on("tick", ticked);
 
 const node = svg.selectAll("circle")
     .data(nodes)
     .enter().append("circle")
     .attr("r", 20)
-    .attr("fill", d => color(d.group))
-    .call(d3.drag()
-        .on("start", dragstarted)
-        .on("drag", dragged)
-        .on("end", dragended));
-
-node.append("title")
-    .text(d => d.id);
+    .attr("fill", "black")
+    .style("cursor", "pointer")
+    .on("mouseover", function(event, d) {
+        d3.select(this).attr("fill", color(d.group));
+        tooltip.style("opacity", 1)
+               .html(`<strong>${d.id}</strong><br><ul>${d.skills.map(s => `<li>${s}</li>`).join('')}</ul>`)
+               .style("left", (event.pageX + 15) + "px")
+               .style("top", (event.pageY - 20) + "px");
+    })
+    .on("mousemove", function(event) {
+        tooltip.style("left", (event.pageX + 15) + "px")
+               .style("top", (event.pageY - 20) + "px");
+    })
+    .on("mouseout", function(event, d) {
+        d3.select(this).attr("fill", "black");
+        tooltip.style("opacity", 0);
+    });
 
 function ticked() {
   node
       .attr("cx", d => d.x)
       .attr("cy", d => d.y);
-}
-
-function dragstarted(event, d) {
-  if (!event.active) simulation.alphaTarget(0.3).restart();
-  d.fx = d.x;
-  d.fy = d.y;
-}
-
-function dragged(event, d) {
-  d.fx = event.x;
-  d.fy = event.y;
-}
-
-function dragended(event, d) {
-  if (!event.active) simulation.alphaTarget(0);
-  d.fx = null;
-  d.fy = null;
 }
 </script>
 </body>
