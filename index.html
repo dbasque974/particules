@@ -2,33 +2,54 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Portfolio Atomique - Tâches vivantes</title>
+  <title>Portfolio Atomique - Didier Basque</title>
   <style>
-    body { margin: 0; overflow: hidden; background: white; font-family: sans-serif; }
-    svg { width: 100vw; height: 100vh; display: block; }
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f6f2ee;
+    }
+    svg {
+      width: 100vw;
+      height: 100vh;
+      display: block;
+    }
     .tooltip {
       position: absolute;
-      background: rgba(255, 255, 255, 0.85);
-      border: 1px solid #ccc;
-      padding: 10px;
+      opacity: 0;
+      background: #222;
+      color: white;
+      padding: 1rem;
+      border-radius: 14px;
+      width: 250px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.25);
       font-size: 14px;
       pointer-events: none;
-      box-shadow: 0px 2px 10px rgba(0,0,0,0.2);
-      border-radius: 8px;
-      transition: opacity 0.2s ease;
+      transition: opacity 0.3s ease;
+      line-height: 1.5;
+    }
+    .tooltip h3 {
+      margin: 0 0 0.5rem;
+      font-size: 16px;
+    }
+    .tooltip ul {
+      padding-left: 20px;
+      margin: 0;
+    }
+    .tooltip ul li {
+      margin-bottom: 4px;
     }
   </style>
 </head>
 <body>
-<div class="tooltip" style="opacity: 0;"></div>
+<div class="tooltip"></div>
 <svg></svg>
 
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
 const width = window.innerWidth;
 const height = window.innerHeight;
-
-const totalNodes = 100; // Total de tâches visuelles
 
 const keyNodes = [
   {
@@ -78,52 +99,48 @@ const keyNodes = [
   }
 ];
 
-// Palette douce inspirée de l’image
 const colors = [
-  "#FFA07A", "#87CEFA", "#90EE90", "#FFD700",
-  "#FF69B4", "#20B2AA", "#9370DB", "#F08080",
-  "#B0C4DE", "#FF8C00"
+  "#FF6B6B", "#4ECDC4", "#F7B801", "#A163F2", "#FF9F1C", "#00A896", "#3D5A80", "#EF476F", "#118AB2"
 ];
 
 const tooltip = d3.select(".tooltip");
 const svg = d3.select("svg");
 
+const totalNodes = 160;
+
 const allNodes = Array.from({ length: totalNodes }, (_, i) => {
-  const data = keyNodes[i] || null;
+  const d = keyNodes[i] || null;
   return {
-    id: data?.id || null,
-    skills: data?.skills || [],
-    isKey: !!data,
-    color: data ? colors[i % colors.length] : "rgba(0,0,0,0.7)",
-    rx: 20 + Math.random() * 20,
-    ry: 12 + Math.random() * 15,
-    rotation: Math.random() * 360
+    id: d?.id || null,
+    skills: d?.skills || [],
+    isKey: !!d,
+    color: d ? colors[i % colors.length] : "#999",
+    radius: d ? 16 + Math.random() * 10 : 4 + Math.random() * 10
   };
 });
 
 const simulation = d3.forceSimulation(allNodes)
-  .force("charge", d3.forceManyBody().strength(-60))
+  .force("charge", d3.forceManyBody().strength(-20))
   .force("center", d3.forceCenter(width / 2, height / 2))
-  .force("collision", d3.forceCollide().radius(d => d.rx + 3))
+  .force("collision", d3.forceCollide().radius(d => d.radius + 2))
   .on("tick", ticked);
 
-const node = svg.selectAll("ellipse")
+const node = svg.selectAll("circle")
   .data(allNodes)
-  .enter().append("ellipse")
-  .attr("rx", d => d.rx)
-  .attr("ry", d => d.ry)
-  .attr("transform", d => `rotate(${d.rotation})`)
+  .enter()
+  .append("circle")
+  .attr("r", d => d.radius)
   .attr("fill", d => d.color)
+  .attr("opacity", d => d.isKey ? 1 : 0.5)
   .style("cursor", d => d.isKey ? "pointer" : "default")
   .on("mouseover", function(event, d) {
     if (d.isKey) {
       tooltip
         .style("opacity", 1)
         .html(`
-          <div style="color:${d.color}; font-weight:bold;">${d.id}</div>
-          <ul style="margin:0; padding-left:16px;">
-            ${d.skills.map(s => `<li>${s}</li>`).join("")}
-          </ul>`);
+          <h3 style="color:${d.color};">${d.id}</h3>
+          <ul>${d.skills.map(skill => `<li>${skill}</li>`).join("")}</ul>
+        `);
     }
   })
   .on("mousemove", function(event) {
@@ -131,7 +148,7 @@ const node = svg.selectAll("ellipse")
       .style("left", (event.pageX + 15) + "px")
       .style("top", (event.pageY - 20) + "px");
   })
-  .on("mouseout", function(event, d) {
+  .on("mouseout", function() {
     tooltip.style("opacity", 0);
   });
 
