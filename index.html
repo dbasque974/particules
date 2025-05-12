@@ -1,4 +1,4 @@
- en<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
@@ -9,175 +9,149 @@
       padding: 0;
       overflow: hidden;
       font-family: 'Segoe UI', sans-serif;
-      background-color: #f1f1f1;
+      background-color: #f3f3f3;
     }
-
     svg {
       width: 100vw;
       height: 100vh;
       display: block;
     }
-
     .tooltip {
       position: absolute;
       max-width: 300px;
-      background: #222;
+      background: rgba(20,20,20,0.92);
       color: white;
       padding: 1rem;
-      border-radius: 14px;
+      border-radius: 12px;
       box-shadow: 0 8px 20px rgba(0,0,0,0.3);
       font-size: 14px;
       pointer-events: none;
       opacity: 0;
       transition: opacity 0.3s ease;
     }
-
     .tooltip h3 {
       margin: 0 0 0.5rem;
       font-size: 16px;
-      color: inherit;
     }
-
     .signature {
       position: absolute;
       bottom: 20px;
       left: 30px;
-      color: #333;
+      color: #222;
       font-size: 13px;
       max-width: 300px;
-      line-height: 1.5;
-      font-weight: 400;
     }
-
     .signature strong {
       font-size: 16px;
-      display: block;
-      margin-bottom: 6px;
       color: #ff5500;
+    }
+    .filter-bar {
+      position: absolute;
+      top: 20px;
+      left: 30px;
+      display: flex;
+      gap: 10px;
+    }
+    .filter-bar button {
+      background: #fff;
+      border: 1px solid #aaa;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .filter-bar button.active {
+      background: #ff5500;
+      color: white;
+      border-color: #ff5500;
     }
   </style>
 </head>
 <body>
 <div class="tooltip"></div>
+<div class="filter-bar"></div>
 <svg></svg>
 <div class="signature">
   <strong>PORTFOLIO • Didier Basque</strong>
-  Mon approche repose sur l’exploration visuelle de mon parcours professionnel.
-  Chaque cercle ici présent représente une expérience, une compétence ou un centre d’intérêt.
-  À travers ce mouvement graphique, je cherche à illustrer la diversité de mes engagements,
-  la fluidité de mes apprentissages, et l’interconnexion entre toutes mes pratiques — pédagogiques,
-  culturelles ou environnementales.
+  Une exploration graphique de mes pratiques professionnelles et artistiques.
+  Chaque cercle est une trace, un mouvement, une mémoire mise en forme pour dire le sens de mes engagements.
 </div>
 
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
+const svg = d3.select("svg");
+const tooltip = d3.select(".tooltip");
 const width = window.innerWidth;
 const height = window.innerHeight;
-
-const tooltip = d3.select('.tooltip');
+const filters = ['Tous', 'Poste', 'Diplôme', 'Interets', 'Mémoire'];
 
 const keyNodes = [
-  {
-    id: "Formateur Manager",
-    color: "#FF6B6B",
-    text: "J’ai appris à encadrer avec écoute et efficacité. Former, pour moi, c’est révéler le potentiel des autres et construire avec eux une dynamique positive, concrète et humaine."
-  },
-  {
-    id: "Enseignant INFOCOM",
-    color: "#4ECDC4",
-    text: "L’université est pour moi un lieu de transmission, mais aussi d’échange. J’y développe une pédagogie vivante, mêlant savoirs académiques et surttout expériences culturelles."
-  },
-  {
-    id: "Gérant PNP",
-    color: "#F7B801",
-    text: "En tant que gérant, j’ai piloté une entreprise informatique en toute autonomie. Cette expérience a renforcé mes capacités de gestion, de décision et de stratégie numérique."
-  },
-  {
-    id: "Licence Pro Commerce",
-    color: "#A163F2",
-    text: "Cette formation m’a permis de relier créativité, outils numériques et logique de marché. J’y ai découvert les leviers du e-commerce et les subtilités du marketing digital."
-  },
-  {
-    id: "Master Humanités Num.",
-    color: "#FF9F1C",
-    text: "Ce master m’aide à penser la technologie comme un vecteur culturel. J’y explore les interactions entre les outils numériques, la médiation et les industries créatives."
-  },
-  {
-    id: "Stage Maraîchage",
-    color: "#00A896",
-    text: "Plonger les mains dans la terre m’a reconnecté à l’essentiel. J’y ai appris rigueur, patience, et observation, dans le respect des rythmes naturels du vivant."
-  },
-  {
-    id: "Feng Shui",
-    color: "#3D5A80",
-    text: "Le Feng Shui m’a initié à une autre manière de concevoir les espaces. J’accorde désormais une attention particulière à l’équilibre, à la circulation et à l’harmonie visuelle."
-  },
-  {
-    id: "Écriture / Poésie",
-    color: "#EF476F",
-    text: "L’écriture est un lieu de liberté. Je compose en français comme en créole, à l'interstice des mondes."
-  },
-  {
-    id: "Nature & objets",
-    color: "#118AB2",
-    text: "Je m’inspire de la nature pour créer. Concevoir, détourner, transformer : j’aime faire parler les objets, leur redonner une fonction ou une beauté nouvelle."
-  }
+  { id: "Formateur Manager", group: "Poste", color: "#FF6B6B", text: "J'ai appris à encadrer avec écoute et efficacité, pour révéler les potentiels." },
+  { id: "Master Humanités Num.", group: "Diplôme", color: "#4ECDC4", text: "Ce master m'aide à penser la technologie comme vecteur culturel." },
+  { id: "Mémoire Sentier Augmenté", group: "Mémoire", color: "#00A896", strokeOnly: true, text: "Mon mémoire propose de numériser les traces culturelles du Bassin Vital pour réactiver la mémoire collective à La Réunion via un parcours augmenté." },
+  { id: "Licence Pro Commerce", group: "Diplôme", color: "#A163F2", text: "Cette formation m'a permis de relier créativité et logique de marché." },
+  { id: "Stage Maraîchage", group: "Poste", color: "#FFD166", text: "Travailler la terre m'a appris rigueur et respect du rythme naturel." },
+  { id: "Nature & objets", group: "Interets", color: "#EF476F", text: "Je m'inspire de la nature pour transformer et revaloriser les objets." }
 ];
 
-const totalNodes = 200;
-
-const allNodes = Array.from({ length: totalNodes }, (_, i) => {
-  const d = keyNodes[i] || null;
+const allNodes = d3.range(200).map((_, i) => {
+  const k = keyNodes[i];
   return {
-    id: d?.id || null,
-    text: d?.text || "",
-    isKey: !!d,
-    color: d ? d.color : "#ccc",
-    radius: d ? 15 + Math.random() * 20 : 3 + Math.random() * 15,
-    filled: d ? true : Math.random() > 0.6 ? false : true
+    id: k?.id || null,
+    group: k?.group || null,
+    text: k?.text || null,
+    isKey: !!k,
+    color: k?.color || '#ccc',
+    radius: k ? 15 + Math.random() * 15 : 4 + Math.random() * 8,
+    strokeOnly: !!k?.strokeOnly,
+    visible: true
   };
 });
 
-const svg = d3.select("svg");
-
-const simulation = d3.forceSimulation(allNodes)
-  .force("charge", d3.forceManyBody().strength(-20))
+let simulation = d3.forceSimulation(allNodes)
+  .force("charge", d3.forceManyBody().strength(-30))
   .force("center", d3.forceCenter(width / 2, height / 2))
   .force("collision", d3.forceCollide().radius(d => d.radius + 2))
   .on("tick", ticked);
 
 const node = svg.selectAll("circle")
   .data(allNodes)
-  .enter()
-  .append("circle")
+  .enter().append("circle")
   .attr("r", d => d.radius)
-  .attr("fill", d => d.filled ? d.color : "none")
-  .attr("stroke", d => d.filled ? "none" : d.color)
-  .attr("stroke-width", d => d.filled ? 0 : 2)
-  .attr("opacity", d => d.isKey ? 1 : 0.5)
-  .style("cursor", d => d.isKey ? "pointer" : "default")
+  .attr("fill", d => d.strokeOnly ? "none" : d.color)
+  .attr("stroke", d => d.strokeOnly ? d.color : "none")
+  .attr("stroke-width", d => d.strokeOnly ? 2 : 0)
+  .attr("opacity", d => d.isKey ? 1 : 0.4)
   .on("mouseover", function(event, d) {
     if (d.isKey) {
       tooltip
         .style("opacity", 1)
-        .style("border-left", `4px solid ${d.color}`)
-        .html(`<h3 style="color:${d.color};">${d.id}</h3><p>${d.text}</p>`);
+        .html(`<h3 style="color:${d.color}">${d.id}</h3><p>${d.text}</p>`);
     }
   })
   .on("mousemove", function(event) {
-    tooltip
-      .style("left", (event.pageX + 15) + "px")
-      .style("top", (event.pageY - 20) + "px");
+    tooltip.style("left", (event.pageX + 10) + "px").style("top", (event.pageY - 20) + "px");
   })
-  .on("mouseout", () => {
-    tooltip.style("opacity", 0);
-  });
+  .on("mouseout", () => tooltip.style("opacity", 0));
 
 function ticked() {
-  node
-    .attr("cx", d => d.x)
-    .attr("cy", d => d.y);
+  node.attr("cx", d => d.x).attr("cy", d => d.y).attr("display", d => d.visible ? null : "none");
 }
+
+// Filter buttons
+const bar = d3.select(".filter-bar");
+filters.forEach(f => {
+  bar.append("button")
+    .text(f)
+    .attr("class", f === "Tous" ? "active" : "")
+    .on("click", function() {
+      d3.selectAll(".filter-bar button").classed("active", false);
+      d3.select(this).classed("active", true);
+      allNodes.forEach(d => {
+        d.visible = (f === "Tous") || (d.group === f);
+      });
+      simulation.alpha(1).restart();
+    });
+});
 </script>
 </body>
 </html>
