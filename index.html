@@ -2,19 +2,20 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Portfolio Atomique - Tâches flottantes</title>
+  <title>Portfolio Atomique - Tâches vivantes</title>
   <style>
     body { margin: 0; overflow: hidden; background: white; font-family: sans-serif; }
     svg { width: 100vw; height: 100vh; display: block; }
     .tooltip {
       position: absolute;
-      background: rgba(255,255,255,0.95);
+      background: rgba(255, 255, 255, 0.85);
       border: 1px solid #ccc;
       padding: 10px;
       font-size: 14px;
       pointer-events: none;
       box-shadow: 0px 2px 10px rgba(0,0,0,0.2);
       border-radius: 8px;
+      transition: opacity 0.2s ease;
     }
   </style>
 </head>
@@ -27,49 +28,73 @@
 const width = window.innerWidth;
 const height = window.innerHeight;
 
-const totalNodes = 100; // comme sur ton image (approximatif)
-const diplomaNodes = [
+const totalNodes = 100; // Total de tâches visuelles
+
+const keyNodes = [
   {
     id: "Formateur Manager",
+    type: "poste",
     skills: ["Analyser", "Accompagnement", "Encadrement", "Évaluation", "Animation"]
   },
   {
     id: "Enseignant INFOCOM",
+    type: "poste",
     skills: ["Pédagogie", "Médiation", "Groupe", "Prépa cours", "Communication"]
   },
   {
     id: "Gérant PNP",
+    type: "poste",
     skills: ["Stratégie", "Informatique", "Finances", "Client", "Entrepreneuriat"]
   },
   {
     id: "Licence Pro Commerce",
+    type: "diplome",
     skills: ["E-commerce", "Marketing", "Vente", "Marché", "Visuel"]
   },
   {
     id: "Master Humanités Num.",
+    type: "diplome",
     skills: ["Design", "Culture numérique", "Industries", "Analyse", "Recherche"]
   },
   {
     id: "Stage Maraîchage",
+    type: "poste",
     skills: ["Horticulture", "Durabilité", "Manuel", "Cahier des charges", "Végétaux"]
   },
   {
     id: "Feng Shui",
+    type: "formation",
     skills: ["Espaces", "Énergie", "Plans", "Symboles", "Harmonie"]
+  },
+  {
+    id: "Écriture / Poésie",
+    type: "centre",
+    skills: ["Création", "Langue", "Inspiration", "Multilingue", "Expression libre"]
+  },
+  {
+    id: "Nature & objets",
+    type: "centre",
+    skills: ["Observation", "Sculpture", "Réflexion", "Esthétique", "Respect vivant"]
   }
 ];
 
-const palette = d3.schemePaired;
+// Palette douce inspirée de l’image
+const colors = [
+  "#FFA07A", "#87CEFA", "#90EE90", "#FFD700",
+  "#FF69B4", "#20B2AA", "#9370DB", "#F08080",
+  "#B0C4DE", "#FF8C00"
+];
+
 const tooltip = d3.select(".tooltip");
 const svg = d3.select("svg");
 
 const allNodes = Array.from({ length: totalNodes }, (_, i) => {
-  const d = diplomaNodes[i] || null;
+  const data = keyNodes[i] || null;
   return {
-    id: d?.id || null,
-    skills: d?.skills || [],
-    isMain: !!d,
-    group: i,
+    id: data?.id || null,
+    skills: data?.skills || [],
+    isKey: !!data,
+    color: data ? colors[i % colors.length] : "rgba(0,0,0,0.7)",
     rx: 20 + Math.random() * 20,
     ry: 12 + Math.random() * 15,
     rotation: Math.random() * 360
@@ -77,9 +102,9 @@ const allNodes = Array.from({ length: totalNodes }, (_, i) => {
 });
 
 const simulation = d3.forceSimulation(allNodes)
-  .force("charge", d3.forceManyBody().strength(-50))
+  .force("charge", d3.forceManyBody().strength(-60))
   .force("center", d3.forceCenter(width / 2, height / 2))
-  .force("collision", d3.forceCollide().radius(d => d.rx + 4))
+  .force("collision", d3.forceCollide().radius(d => d.rx + 3))
   .on("tick", ticked);
 
 const node = svg.selectAll("ellipse")
@@ -88,24 +113,25 @@ const node = svg.selectAll("ellipse")
   .attr("rx", d => d.rx)
   .attr("ry", d => d.ry)
   .attr("transform", d => `rotate(${d.rotation})`)
-  .attr("fill", "rgba(0, 0, 0, 0.7)")
-  .style("cursor", d => d.isMain ? "pointer" : "default")
+  .attr("fill", d => d.color)
+  .style("cursor", d => d.isKey ? "pointer" : "default")
   .on("mouseover", function(event, d) {
-    if (d.isMain) {
-      d3.select(this).attr("fill", palette[d.group % palette.length]);
+    if (d.isKey) {
       tooltip
         .style("opacity", 1)
-        .html(`<strong>${d.id}</strong><br><ul>${d.skills.map(s => `<li>${s}</li>`).join("")}</ul>`)
-        .style("left", (event.pageX + 15) + "px")
-        .style("top", (event.pageY - 20) + "px");
+        .html(`
+          <div style="color:${d.color}; font-weight:bold;">${d.id}</div>
+          <ul style="margin:0; padding-left:16px;">
+            ${d.skills.map(s => `<li>${s}</li>`).join("")}
+          </ul>`);
     }
   })
   .on("mousemove", function(event) {
-    tooltip.style("left", (event.pageX + 15) + "px")
-           .style("top", (event.pageY - 20) + "px");
+    tooltip
+      .style("left", (event.pageX + 15) + "px")
+      .style("top", (event.pageY - 20) + "px");
   })
   .on("mouseout", function(event, d) {
-    d3.select(this).attr("fill", "rgba(0, 0, 0, 0.7)");
     tooltip.style("opacity", 0);
   });
 
