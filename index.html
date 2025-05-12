@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Portfolio • didier basque</title>
+  <title>Portfolio • Didier Basque</title>
   <style>
     html, body {
       margin: 0;
@@ -45,6 +45,20 @@
       font-size: 16px;
       color: #ff5500;
     }
+    .intention {
+      position: absolute;
+      bottom: 20px;
+      right: 30px;
+      color: #222;
+      font-size: 13px;
+      max-width: 320px;
+    }
+    .intention strong {
+      font-size: 16px;
+      color: #ff5500;
+      display: block;
+      margin-bottom: 6px;
+    }
     .filter-bar {
       position: absolute;
       top: 20px;
@@ -53,15 +67,17 @@
       gap: 10px;
     }
     .filter-bar button {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
       background: #111;
       color: white;
       border: none;
-      padding: 8px 16px;
-      border-radius: 20px;
       font-weight: bold;
       font-size: 12px;
       cursor: pointer;
       transition: background 0.3s ease;
+      text-align: center;
     }
     .filter-bar button:hover,
     .filter-bar button.active {
@@ -75,11 +91,17 @@
 <div class="filter-bar"></div>
 <svg></svg>
 <div class="signature">
-  <strong>PORTFOLIO • didier basque</strong>
+  <strong>PORTFOLIO • Didier Basque</strong>
   Une exploration graphique de mes pratiques professionnelles et artistiques.
   Chaque cercle est une trace, un mouvement, une mémoire mise en forme pour dire le sens de mes engagements.
 </div>
-
+<div class="intention">
+  <strong>Note d’intention</strong>
+  Ce portfolio est né d’un besoin de représenter visuellement et intuitivement mon parcours pluridisciplinaire. Plutôt que de lister de façon figée mes expériences, j’ai choisi une forme organique, mouvante, vivante — un espace en perpétuelle recomposition.
+Chaque cercle représente une partie de moi : un poste occupé, un diplôme acquis, un centre d’intérêt cultivé ou mon actuel mémoire de recherche. Ces éléments ne sont pas hiérarchisés mais mis en mouvement, car ce sont leurs interactions, leurs croisements, leurs rebonds qui donnent du sens à mon cheminement.
+Le design s’inspire du langage graphique des interfaces expérimentales, combinant rigueur et abstraction. Le code sous-jacent devient aussi support de narration : la dynamique des particules reflète la fluidité des apprentissages, la couleur signale la singularité de chaque engagement.
+Ce travail est à la fois une archive, une cartographie personnelle et une invitation. Une archive de mes pratiques passées, une carte de mes savoirs actifs, et une invitation à lire, découvrir, explorer — autrement.
+</div>
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
 const svg = d3.select("svg");
@@ -88,18 +110,7 @@ const width = window.innerWidth;
 const height = window.innerHeight;
 const filters = ['Tous', 'Poste', 'Diplôme', 'Interets', 'Mémoire'];
 
-const keyNodes = [
-  { id: "Formateur Manager", group: "Poste", color: "#FF6B6B", text: "J'ai appris à encadrer avec écoute et efficacité, pour révéler les potentiels." },
-  { id: "Master Humanités Num.", group: "Diplôme", color: "#4ECDC4", text: "Ce master m'aide à penser la technologie comme vecteur culturel." },
-  { id: "Mémoire Sentier Augmenté", group: "Mémoire", color: "#00A896", strokeOnly: true, text: "Mon mémoire propose de numériser les traces culturelles du Bassin Vital pour réactiver la mémoire collective à La Réunion via un parcours augmenté." },
-  { id: "Licence Pro Commerce", group: "Diplôme", color: "#A163F2", text: "Cette formation m'a permis de relier créativité et logique de marché." },
-  { id: "Stage Maraîchage", group: "Poste", color: "#FFD166", text: "Travailler la terre m'a appris rigueur et respect du rythme naturel." },
-  { id: "Nature & objets", group: "Interets", color: "#EF476F", text: "Je m'inspire de la nature pour transformer et revaloriser les objets." },
-  { id: "Enseignant INFOCOM", group: "Poste", color: "#FF8C42", text: "J'interviens à l'université avec une pédagogie vivante, liant théorie et culture." },
-  { id: "Feng Shui", group: "Interets", color: "#7B2CBF", text: "Le Feng Shui m'enseigne l'équilibre entre espace, circulation et énergie visuelle." },
-  { id: "Gérant PNP", group: "Poste", color: "#06D6A0", text: "Piloter une entreprise m'a donné une vision stratégique et autonome du numérique." },
-  { id: "Ecriture / Poésie", group: "Interets", color: "#FF3366", text: "J'écris en français et créole pour faire vibrer les mots et les souvenirs." }
-];
+const keyNodes = [...]; // reste inchangé
 
 const allNodes = d3.range(250).map((_, i) => {
   const k = keyNodes[i];
@@ -149,7 +160,8 @@ function ticked() {
 const bar = d3.select(".filter-bar");
 filters.forEach(f => {
   bar.append("button")
-    .text(f)
+    .text(f[0])
+    .attr("title", f)
     .attr("class", f === "Tous" ? "active" : "")
     .on("click", function() {
       d3.selectAll(".filter-bar button").classed("active", false);
