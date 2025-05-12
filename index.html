@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <title>portfolio dynamique</title>
+  <meta charset="UTF-8">
+  <title>Portfolio Atomique - Tâches flottantes</title>
   <style>
-    body { margin: 0; overflow: hidden; font-family: sans-serif; background: white; }
+    body { margin: 0; overflow: hidden; background: white; font-family: sans-serif; }
     svg { width: 100vw; height: 100vh; display: block; }
     .tooltip {
       position: absolute;
@@ -24,126 +24,95 @@
 
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
-const nodes = [
+const width = window.innerWidth;
+const height = window.innerHeight;
+
+const totalNodes = 100; // comme sur ton image (approximatif)
+const diplomaNodes = [
   {
     id: "Formateur Manager",
-    group: 1,
-    skills: [
-      "Analyser les freins/apports",
-      "Accompagnement insertion",
-      "Encadrement pédagogique",
-      "Évaluation de compétences",
-      "Animation d’équipe"
-    ]
+    skills: ["Analyser", "Accompagnement", "Encadrement", "Évaluation", "Animation"]
   },
   {
     id: "Enseignant INFOCOM",
-    group: 2,
-    skills: [
-      "Pédagogie universitaire",
-      "Médiation culturelle",
-      "Gestion de groupe",
-      "Préparation de cours",
-      "Communication orale"
-    ]
+    skills: ["Pédagogie", "Médiation", "Groupe", "Prépa cours", "Communication"]
   },
   {
     id: "Gérant PNP",
-    group: 1,
-    skills: [
-      "Stratégie d’entreprise",
-      "Informatique",
-      "Gestion financière",
-      "Relation client",
-      "Esprit entrepreneurial"
-    ]
+    skills: ["Stratégie", "Informatique", "Finances", "Client", "Entrepreneuriat"]
   },
   {
     id: "Licence Pro Commerce",
-    group: 3,
-    skills: [
-      "E-commerce",
-      "Marketing digital",
-      "Stratégie de vente",
-      "Analyse de marché",
-      "Communication visuelle"
-    ]
+    skills: ["E-commerce", "Marketing", "Vente", "Marché", "Visuel"]
   },
   {
-    id: "Master Humanités Numériques",
-    group: 3,
-    skills: [
-      "Design d'interaction",
-      "Culture numérique",
-      "Industries culturelles",
-      "Analyse critique",
-      "Recherche appliquée"
-    ]
+    id: "Master Humanités Num.",
+    skills: ["Design", "Culture numérique", "Industries", "Analyse", "Recherche"]
   },
   {
     id: "Stage Maraîchage",
-    group: 1,
-    skills: [
-      "Techniques horticoles",
-      "Agriculture durable",
-      "Travail manuel",
-      "Respect cahier des charges",
-      "Observation végétale"
-    ]
+    skills: ["Horticulture", "Durabilité", "Manuel", "Cahier des charges", "Végétaux"]
   },
   {
     id: "Feng Shui",
-    group: 4,
-    skills: [
-      "Équilibre des espaces",
-      "Design énergétique",
-      "Lecture de plans",
-      "Symbolique",
-      "Harmonie environnementale"
-    ]
+    skills: ["Espaces", "Énergie", "Plans", "Symboles", "Harmonie"]
   }
 ];
 
-const svg = d3.select("svg"),
-      width = window.innerWidth,
-      height = window.innerHeight;
-
+const palette = d3.schemePaired;
 const tooltip = d3.select(".tooltip");
+const svg = d3.select("svg");
 
-const color = d3.scaleOrdinal(d3.schemeCategory10);
+const allNodes = Array.from({ length: totalNodes }, (_, i) => {
+  const d = diplomaNodes[i] || null;
+  return {
+    id: d?.id || null,
+    skills: d?.skills || [],
+    isMain: !!d,
+    group: i,
+    rx: 20 + Math.random() * 20,
+    ry: 12 + Math.random() * 15,
+    rotation: Math.random() * 360
+  };
+});
 
-const simulation = d3.forceSimulation(nodes)
-    .force("charge", d3.forceManyBody().strength(-100))
-    .force("center", d3.forceCenter(width / 2, height / 2))
-    .force("collision", d3.forceCollide().radius(40))
-    .on("tick", ticked);
+const simulation = d3.forceSimulation(allNodes)
+  .force("charge", d3.forceManyBody().strength(-50))
+  .force("center", d3.forceCenter(width / 2, height / 2))
+  .force("collision", d3.forceCollide().radius(d => d.rx + 4))
+  .on("tick", ticked);
 
-const node = svg.selectAll("circle")
-    .data(nodes)
-    .enter().append("circle")
-    .attr("r", 20)
-    .attr("fill", "black")
-    .style("cursor", "pointer")
-    .on("mouseover", function(event, d) {
-        d3.select(this).attr("fill", color(d.group));
-        tooltip.style("opacity", 1)
-               .html(`<strong>${d.id}</strong><br><ul>${d.skills.map(s => `<li>${s}</li>`).join('')}</ul>`)
-               .style("left", (event.pageX + 15) + "px")
-               .style("top", (event.pageY - 20) + "px");
-    })
-    .on("mousemove", function(event) {
-        tooltip.style("left", (event.pageX + 15) + "px")
-               .style("top", (event.pageY - 20) + "px");
-    })
-    .on("mouseout", function(event, d) {
-        d3.select(this).attr("fill", "black");
-        tooltip.style("opacity", 0);
-    });
+const node = svg.selectAll("ellipse")
+  .data(allNodes)
+  .enter().append("ellipse")
+  .attr("rx", d => d.rx)
+  .attr("ry", d => d.ry)
+  .attr("transform", d => `rotate(${d.rotation})`)
+  .attr("fill", "rgba(0, 0, 0, 0.7)")
+  .style("cursor", d => d.isMain ? "pointer" : "default")
+  .on("mouseover", function(event, d) {
+    if (d.isMain) {
+      d3.select(this).attr("fill", palette[d.group % palette.length]);
+      tooltip
+        .style("opacity", 1)
+        .html(`<strong>${d.id}</strong><br><ul>${d.skills.map(s => `<li>${s}</li>`).join("")}</ul>`)
+        .style("left", (event.pageX + 15) + "px")
+        .style("top", (event.pageY - 20) + "px");
+    }
+  })
+  .on("mousemove", function(event) {
+    tooltip.style("left", (event.pageX + 15) + "px")
+           .style("top", (event.pageY - 20) + "px");
+  })
+  .on("mouseout", function(event, d) {
+    d3.select(this).attr("fill", "rgba(0, 0, 0, 0.7)");
+    tooltip.style("opacity", 0);
+  });
 
 function ticked() {
   node
-      .attr("cx", d => d.x)
-      .attr("cy", d => d.y);
+    .attr("cx", d => d.x)
+    .attr("cy", d => d.y);
 }
 </script>
 </body>
