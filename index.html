@@ -19,7 +19,7 @@
     .tooltip {
       position: absolute;
       max-width: 300px;
-      background: rgba(20,20,20,0.92);
+      background: rgba(20,20,20,0.85);
       color: white;
       padding: 1rem;
       border-radius: 12px;
@@ -97,7 +97,7 @@
 </div>
 <div class="intention">
   <strong>Note d’intention</strong>
-  Ce portfolio est né d’un besoin de représenter visuellement et intuitivement la richesse d’un parcours pluridisciplinaire. 
+  Ce portfolio est né d’un besoin de représenter visuellement et intuitivement la richesse de mon parcours pluridisciplinaire. 
   Plutôt que de lister de façon figée mes expériences, j’ai choisi une forme organique, mouvante, vivante — un espace en perpétuelle recomposition.
   Chaque cercle représente une partie de moi : un poste, un diplôme, un centre d’intérêt ou une recherche approfondie. 
   Ces éléments ne sont pas hiérarchisés mais mis en mouvement : leurs croisements donnent du sens à mon cheminement.
@@ -111,15 +111,15 @@ const height = window.innerHeight;
 const filters = ['Tous', 'Poste', 'Diplôme', 'Interets', 'Mémoire'];
 
 const keyNodes = [
-  { id: "Formateur Manager", group: "Poste", color: "#FF6B6B", text: "J'ai appris à encadrer avec écoute et efficacité." },
-  { id: "Master Humanités Num.", group: "Diplôme", color: "#4ECDC4", text: "Ce master m'aide à penser la technologie comme vecteur culturel." },
-  { id: "Mémoire Sentier Augmenté", group: "Mémoire", color: "#00A896", strokeOnly: true, text: "Mon mémoire propose de numériser les traces culturelles du Bassin Vital..." },
-  { id: "Licence Pro Commerce", group: "Diplôme", color: "#A163F2", text: "Cette formation m'a permis de relier créativité et logique de marché." },
-  { id: "Stage Maraîchage", group: "Poste", color: "#FFD166", text: "Travailler la terre m'a appris rigueur et respect du rythme naturel." },
-  { id: "Nature & objets", group: "Interets", color: "#EF476F", text: "Je m'inspire de la nature pour transformer et revaloriser les objets." },
-  { id: "Feng Shui", group: "Interets", color: "#7B2CBF", text: "Le Feng Shui m'enseigne l'équilibre entre espace, circulation et énergie visuelle." },
-  { id: "Écriture / Poésie", group: "Interets", color: "#FF3366", text: "J'écris en français et créole pour faire vibrer les mots et les souvenirs." },
-  { id: "Gérant PNP", group: "Poste", color: "#06D6A0", text: "Piloter une entreprise m'a donné une vision stratégique et autonome du numérique." }
+  { id: "Formateur Manager", group: "Poste", color: "#FF6B6B", text: "En tant que formateur manager, j’ai accompagné des publics variés vers l’autonomie professionnelle. J’ai appris à m’adapter à différents profils, à repérer les dynamiques de groupe et à stimuler la motivation dans un cadre exigeant. Encadrer, pour moi, c’est créer les conditions de la confiance et de la progression partagée." },
+  { id: "Master Humanités Num.", group: "Diplôme", color: "#4ECDC4", text: "Ce master m’a permis d’interroger les usages numériques contemporains sous l’angle des sciences humaines. J’y ai développé une culture critique des médias, des interfaces et des formes de narration interactives, tout en construisant des projets à la croisée du design, de la recherche et de la médiation culturelle." },
+  { id: "Mémoire Sentier Augmenté", group: "Mémoire", color: "#00A896", strokeOnly: true, text: "Mon mémoire propose de numériser les traces culturelles du Bassin Vital pour réactiver la mémoire collective à La Réunion via un parcours augmenté. Il mêle géolocalisation, patrimoine oral et design d’interaction dans une démarche sensible et engagée." },
+  { id: "Licence Pro Commerce", group: "Diplôme", color: "#A163F2", text: "Cette licence professionnelle m’a formé aux fondamentaux du commerce, en lien avec les évolutions du numérique. J’y ai acquis des compétences en marketing digital, en communication stratégique et en gestion de projets orientés client." },
+  { id: "Stage Maraîchage", group: "Poste", color: "#FFD166", text: "Travailler la terre m’a offert un rapport concret et exigeant à l’environnement. Dans une exploitation maraîchère, j’ai appris à observer, planifier, respecter les cycles naturels et travailler avec rigueur. Cette expérience m’a reconnecté à une dimension essentielle de l’activité humaine." },
+  { id: "Nature & objets", group: "Interets", color: "#EF476F", text: "Je m’inspire de la nature pour transformer et revaloriser les objets. J’aime détourner, assembler, redonner vie à des matières délaissées, dans une logique de sobriété créative et poétique." },
+  { id: "Feng Shui", group: "Interets", color: "#7B2CBF", text: "Le Feng Shui m’enseigne l’équilibre entre espace, circulation et énergie visuelle. Je m’en inspire pour penser l’agencement d’un lieu de façon fluide, en lien avec le corps et les usages." },
+  { id: "Écriture / Poésie", group: "Interets", color: "#FF3366", text: "J’écris en français et créole pour faire vibrer les mots et les souvenirs. C’est un espace d’expression libre où je cherche à relier langage, mémoire et imaginaire." },
+  { id: "Gérant PNP", group: "Poste", color: "#06D6A0", text: "Gérer PNP Informatique m’a permis de construire une structure indépendante alliant prestation technique et conseil. J’y ai développé une vision stratégique, une autonomie opérationnelle et un sens poussé de la relation client dans un contexte entrepreneurial." }
 ];
 
 const allNodes = d3.range(250).map((_, i) => {
