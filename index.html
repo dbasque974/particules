@@ -2,122 +2,143 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Portfolio Atomique - Didier Basque</title>
+  <title>Portfolio • Didier Basque</title>
   <style>
-    body {
+    html, body {
       margin: 0;
+      padding: 0;
       overflow: hidden;
       font-family: 'Segoe UI', sans-serif;
-      background-color: #f6f2ee;
+      background-color: #f1f1f1;
     }
+
     svg {
       width: 100vw;
       height: 100vh;
       display: block;
     }
+
     .tooltip {
       position: absolute;
-      opacity: 0;
+      max-width: 300px;
       background: #222;
       color: white;
       padding: 1rem;
       border-radius: 14px;
-      width: 250px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
       font-size: 14px;
       pointer-events: none;
+      opacity: 0;
       transition: opacity 0.3s ease;
-      line-height: 1.5;
     }
+
     .tooltip h3 {
       margin: 0 0 0.5rem;
       font-size: 16px;
+      color: inherit;
     }
-    .tooltip ul {
-      padding-left: 20px;
-      margin: 0;
+
+    .signature {
+      position: absolute;
+      bottom: 20px;
+      left: 30px;
+      color: #333;
+      font-size: 13px;
+      max-width: 300px;
+      line-height: 1.5;
+      font-weight: 400;
     }
-    .tooltip ul li {
-      margin-bottom: 4px;
+
+    .signature strong {
+      font-size: 16px;
+      display: block;
+      margin-bottom: 6px;
+      color: #ff5500;
     }
   </style>
 </head>
 <body>
 <div class="tooltip"></div>
 <svg></svg>
+<div class="signature">
+  <strong>PORTFOLIO • Didier Basque</strong>
+  Mon approche repose sur l’exploration visuelle de mon parcours professionnel.
+  Chaque cercle ici présent représente une expérience, une compétence ou un centre d’intérêt.
+  À travers ce mouvement graphique, je cherche à illustrer la diversité de mes engagements,
+  la fluidité de mes apprentissages, et l’interconnexion entre toutes mes pratiques — pédagogiques,
+  culturelles ou environnementales.
+</div>
 
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
 const width = window.innerWidth;
 const height = window.innerHeight;
 
+const tooltip = d3.select('.tooltip');
+
 const keyNodes = [
   {
     id: "Formateur Manager",
-    type: "poste",
-    skills: ["Analyser", "Accompagnement", "Encadrement", "Évaluation", "Animation"]
+    color: "#FF6B6B",
+    text: "J’ai appris à encadrer avec écoute et efficacité. Former, pour moi, c’est révéler le potentiel des autres et construire avec eux une dynamique positive, concrète et humaine."
   },
   {
     id: "Enseignant INFOCOM",
-    type: "poste",
-    skills: ["Pédagogie", "Médiation", "Groupe", "Prépa cours", "Communication"]
+    color: "#4ECDC4",
+    text: "L’université est pour moi un lieu de transmission, mais aussi d’échange. J’y développe une pédagogie vivante, mêlant savoirs académiques et surttout expériences culturelles."
   },
   {
     id: "Gérant PNP",
-    type: "poste",
-    skills: ["Stratégie", "Informatique", "Finances", "Client", "Entrepreneuriat"]
+    color: "#F7B801",
+    text: "En tant que gérant, j’ai piloté une entreprise informatique en toute autonomie. Cette expérience a renforcé mes capacités de gestion, de décision et de stratégie numérique."
   },
   {
     id: "Licence Pro Commerce",
-    type: "diplome",
-    skills: ["E-commerce", "Marketing", "Vente", "Marché", "Visuel"]
+    color: "#A163F2",
+    text: "Cette formation m’a permis de relier créativité, outils numériques et logique de marché. J’y ai découvert les leviers du e-commerce et les subtilités du marketing digital."
   },
   {
     id: "Master Humanités Num.",
-    type: "diplome",
-    skills: ["Design", "Culture numérique", "Industries", "Analyse", "Recherche"]
+    color: "#FF9F1C",
+    text: "Ce master m’aide à penser la technologie comme un vecteur culturel. J’y explore les interactions entre les outils numériques, la médiation et les industries créatives."
   },
   {
     id: "Stage Maraîchage",
-    type: "poste",
-    skills: ["Horticulture", "Durabilité", "Manuel", "Cahier des charges", "Végétaux"]
+    color: "#00A896",
+    text: "Plonger les mains dans la terre m’a reconnecté à l’essentiel. J’y ai appris rigueur, patience, et observation, dans le respect des rythmes naturels du vivant."
   },
   {
     id: "Feng Shui",
-    type: "formation",
-    skills: ["Espaces", "Énergie", "Plans", "Symboles", "Harmonie"]
+    color: "#3D5A80",
+    text: "Le Feng Shui m’a initié à une autre manière de concevoir les espaces. J’accorde désormais une attention particulière à l’équilibre, à la circulation et à l’harmonie visuelle."
   },
   {
     id: "Écriture / Poésie",
-    type: "centre",
-    skills: ["Création", "Langue", "Inspiration", "Multilingue", "Expression libre"]
+    color: "#EF476F",
+    text: "L’écriture est un lieu de liberté. Je compose en français comme en créole, avec l’envie de faire vibrer les mots et d’ouvrir des mondes par la langue."
   },
   {
     id: "Nature & objets",
-    type: "centre",
-    skills: ["Observation", "Sculpture", "Réflexion", "Esthétique", "Respect vivant"]
+    color: "#118AB2",
+    text: "Je m’inspire de la nature pour créer. Concevoir, détourner, transformer : j’aime faire parler les objets, leur redonner une fonction ou une beauté nouvelle."
   }
 ];
 
-const colors = [
-  "#FF6B6B", "#4ECDC4", "#F7B801", "#A163F2", "#FF9F1C", "#00A896", "#3D5A80", "#EF476F", "#118AB2"
-];
-
-const tooltip = d3.select(".tooltip");
-const svg = d3.select("svg");
-
-const totalNodes = 160;
+const totalNodes = 200;
 
 const allNodes = Array.from({ length: totalNodes }, (_, i) => {
   const d = keyNodes[i] || null;
   return {
     id: d?.id || null,
-    skills: d?.skills || [],
+    text: d?.text || "",
     isKey: !!d,
-    color: d ? colors[i % colors.length] : "#999",
-    radius: d ? 16 + Math.random() * 10 : 4 + Math.random() * 10
+    color: d ? d.color : "#ccc",
+    radius: d ? 15 + Math.random() * 20 : 3 + Math.random() * 15,
+    filled: d ? true : Math.random() > 0.6 ? false : true
   };
 });
+
+const svg = d3.select("svg");
 
 const simulation = d3.forceSimulation(allNodes)
   .force("charge", d3.forceManyBody().strength(-20))
@@ -130,17 +151,17 @@ const node = svg.selectAll("circle")
   .enter()
   .append("circle")
   .attr("r", d => d.radius)
-  .attr("fill", d => d.color)
+  .attr("fill", d => d.filled ? d.color : "none")
+  .attr("stroke", d => d.filled ? "none" : d.color)
+  .attr("stroke-width", d => d.filled ? 0 : 2)
   .attr("opacity", d => d.isKey ? 1 : 0.5)
   .style("cursor", d => d.isKey ? "pointer" : "default")
   .on("mouseover", function(event, d) {
     if (d.isKey) {
       tooltip
         .style("opacity", 1)
-        .html(`
-          <h3 style="color:${d.color};">${d.id}</h3>
-          <ul>${d.skills.map(skill => `<li>${skill}</li>`).join("")}</ul>
-        `);
+        .style("border-left", `4px solid ${d.color}`)
+        .html(`<h3 style="color:${d.color};">${d.id}</h3><p>${d.text}</p>`);
     }
   })
   .on("mousemove", function(event) {
@@ -148,7 +169,7 @@ const node = svg.selectAll("circle")
       .style("left", (event.pageX + 15) + "px")
       .style("top", (event.pageY - 20) + "px");
   })
-  .on("mouseout", function() {
+  .on("mouseout", () => {
     tooltip.style("opacity", 0);
   });
 
